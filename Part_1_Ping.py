@@ -1,11 +1,11 @@
 import subprocess
 import shlex
 
-cmd   = "ping -c 1 www.cs.xu.edu"
+cmd   = "ping -c 1 www.cs.xu.edu"           # saves the command in a variable
 
-args = shlex.split(cmd)
+args = shlex.split(cmd)                     # parses cmd to get it ready for the check_call
 try:
     subprocess.check_call(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     print ("Xavier CS web server is up!")
 except subprocess.CalledProcessError:
-    print ("Failed to get ping.")
+    print ("Failed to get ping.")               # prints failed ping
