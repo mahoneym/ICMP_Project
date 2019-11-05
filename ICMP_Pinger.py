@@ -6,16 +6,23 @@ import select
 import time
 
 
-ICMP_ECHO_REQUEST = #Fill in the type of ECHO request here # (Platform specific)
+ICMP_ECHO_REQUEST = 8       # Fill in the type of ECHO request here (Platform specific)
 DEFAULT_TIMEOUT = 2         # set the timeout for the pinger
 DEFAULT_COUNT = 4           # the number of pings to send
 
 
 class Pinger(object):
-    """ Explain what is happening here?  """
+    """
+    The Pinger class defines an object that will send and receive ICMP echo requests and
+    replies to itself or other hosts. The constructor takes a target_host, the number of
+    pings to send (defaults to 4 if no input), and the amount of time for a timeout
+    (defaults to 2 if no input).
+    """
 
-    # a constructor the pinger class
     def __init__(self, target_host, count=DEFAULT_COUNT, timeout=DEFAULT_TIMEOUT):
+        """
+        The constructor for the pinger class
+        """
         self.target_host = target_host      # the host's address
         self.count = count                  # how many ICMP packets to send
         self.timeout = timeout              # assigns how long the pinger will wait for a response
@@ -90,7 +97,7 @@ class Pinger(object):
         """
         target_addr  =  socket.gethostbyname(self.target_host)
 
-        my_checksum = #Fill in
+        my_checksum = do_checksum()     #Fill in
 
         # Create a dummy heder with a 0 checksum.
         header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
@@ -122,13 +129,11 @@ class Pinger(object):
                 e.msg +=  "" #Fill in before
                 raise socket.error(e.msg)
         except Exception as e:
-            #print the errror messege
-            print ("Exception: %s" %(#Fill in)
+            print ("Exception: %s" % e)                     #print the errror messege
 
         my_ID = os.getpid() & 0xFFFF
 
         #Call the definition from send.ping above and send to the socket you created above
-        #self.send_ping(#Fill in , my_ID)
         self.send_ping(sock , my_ID)
         delay = self.receive_pong(sock, my_ID, self.timeout)
         sock.close()
