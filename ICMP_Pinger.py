@@ -58,11 +58,11 @@ class Pinger(object):
         """
         time_remaining = timeout
         while True:
-            start_time = time.time()            # get the time of starrting to listen
+            start_time = time.time()                                        # get the time of starrting to listen
             readable = select.select([sock], [], [], time_remaining)
-            time_spent = (time.time() - start_time)         # calculates how much time has passed
-            if readable == 0: #Timeout occurs if readable is 0, hopefully remember what time out is now
-                return                                           # get out of here
+            time_spent = (time.time() - start_time)                         # calculates how much time has passed
+            if readable == 0:                     #Timeout occurs if readable is 0, hopefully remember what time out is now
+                return                                                      # get out of here cause we timed out
 
             time_received = time.time()
             recv_packet, addr = sock.recvfrom(1024)
@@ -89,9 +89,9 @@ class Pinger(object):
         We have to create a packet and send it to the destination host,
         we are creating a dummy ICMP packet and attaching it to the IP header.
         """
-        target_addr  =  socket.gethostbyname(self.target_host)
+        target_addr  =  socket.gethostbyname(self.target_host)                              # get the host name's IPv4 address
 
-        my_checksum = 0     #Fill in
+        my_checksum = 0                                                                     # initialize checksum to zero
 
         # Create a dummy heder with a 0 checksum.
         header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
@@ -103,9 +103,10 @@ class Pinger(object):
         my_checksum = self.do_checksum(header + data)
         header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), ID, 1)
 
-        packet = header + data              # add the data from above to the header to create a complete packet
+        # add the data from above to the header to create a complete packet
+        packet = header + data
         #send the packet to the target address
-        sock.sendto(packet, (target_addr, 1))
+        sock.sendto(packet, (target_addr, 1))                                               # send the packet to the socket
 
 
     def ping_once(self):
@@ -114,22 +115,24 @@ class Pinger(object):
         """
         icmp = socket.getprotobyname("icmp")
         try:
-        #add the ipv4 socket (same as we did in our first project, SOCK_RAW(to bypass some of the TCP/IP handling by your OS) and the ICMP packet
+            # add the ipv4 socket (same as we did in our first project,
+            # SOCK_RAW(to bypass some of the TCP/IP handling by your OS)
+            # and the ICMP packet
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-        except socket.error as e:
+        except socket.error as e:                                                       # catch an error thrown by the socket
             if e.errno == 1:
-                print("Permissions error: The program must be run as admin")   # If not run by admin, operation is not permitted
-                e.msg +=  "Not run as admin" #Fill in before
-                raise socket.error(e.msg)
-        except Exception as e:
-            print ("Exception: %s" % e)                     #print the errror messege
+                print("Permissions error: The program must be run as admin")            # If not run by admin/sudo, operation is not permitted
+                e.msg +=  "Not run as admin"                                            # Add 'Not run as admin' to the exception message
+                raise socket.error(e.msg)                                               # throw the exception
+        except Exception as e:                                                          # catch any other exceptions
+            print ("Exception: %s" % e)                                                 # print the exception messege
 
         my_ID = os.getpid() & 0xFFFF
 
-        #Call the definition from send.ping above and send to the socket you created above
-        self.send_ping(sock , my_ID)
-        delay = self.receive_pong(sock, my_ID, self.timeout)
-        sock.close()
+        # Call the definition from send_ping above and send to the socket you created above
+        self.send_ping(sock , my_ID)                                                    # send the ping
+        delay = self.receive_pong(sock, my_ID, self.timeout)                            # receive the response and save the return value
+        sock.close()                                                                    # close the socket
         return delay
 
 
@@ -137,26 +140,26 @@ class Pinger(object):
         """
         Run the ping process
         """
-        for i in range(self.count):
-            print ("Ping to %s..." % self.target_host,)
+        for i in range(self.count):                                                     # pings the number of times passed into the constructor
+            print ("Ping to %s..." % self.target_host,)                                 # prints the ping message in the terminal
             try:
-                delay  =  self.ping_once()
-            except socket.gaierror as e:
-                print ("Ping failed. (socket error: '%s')" % e[1])
+                delay  =  self.ping_once()                                              # pings the target_host and save the return value
+            except socket.gaierror as e:                                                # if the result was an address error
+                print ("Ping failed. (socket error: '%s')" % e[1])                      # prints an error message to the user
                 break
 
-            if delay  ==  None:
-                print ("Ping failed. (timeout within %ssec.)" % self.timeout)
+            if delay  ==  None:                                                         # if the delay is null
+                print ("Ping failed. (timeout within %ssec.)" % self.timeout)           # the ping failed during the timeout
             else:
-                delay  =  delay * 1000
-                print ("Get pong in %0.4fms" % delay)
+                delay  =  delay * 1000                                                  # multiply the delay by 1000 to get milliseconds
+                print ("Get pong in %0.4fms" % delay)                                   # print the delay for the user
 
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Python ping')  # create a parser to add arguments
-    parser.add_argument('--target-host', action="store", dest="target_host", required=True)
-    given_args = parser.parse_args()            # parses the arguments
-    target_host = given_args.target_host        # puts the argument into target_host
-    pinger = Pinger(target_host=target_host)        # create a pinger with the given target_host
-    pinger.ping()                                   # ping the target_host
+    parser = argparse.ArgumentParser(description='Python ping')                         # create a parser to add arguments
+    parser.add_argument('--target-host', action="store", dest="target_host", required=True)         # adds the host argument to the command
+    given_args = parser.parse_args()                                                    # parses the arguments
+    target_host = given_args.target_host                                                # puts the argument into target_host
+    pinger = Pinger(target_host=target_host)                                            # create a pinger with the given target_host
+    pinger.ping()                                                                       # ping the target_host
