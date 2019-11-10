@@ -158,6 +158,5 @@ if __name__ == '__main__':
     parser.add_argument('--target-host', action="store", dest="target_host", required=True)
     given_args = parser.parse_args()            # parses the arguments
     target_host = given_args.target_host        # puts the argument into target_host
-    #target_host = 'www.google.com'
     pinger = Pinger(target_host=target_host)        # create a pinger with the given target_host
     pinger.ping()                                   # ping the target_host
