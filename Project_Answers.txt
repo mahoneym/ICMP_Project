@@ -2,7 +2,10 @@ Maggie Mahoney
 				ICMP Project
 Part 1:
 	1. Explain what the result is when you run the Python code.
-When the python code is run, the 
+When the python code is run on Xavier's network, the terminal prints 'Xavier CS web server is up!", and the program ends. 
+
 	2. Try to figure out what the code does and explain it here.
+The code is using python's shlex library to parse the ping command. Then, it uses the python subprocess library to run the ping command and check its return code. If the command is successful, the program will print that the cerebro server is up. Otherwise, if the return code is not 0, a CalledProcessError is thrown, which in this program means that cerebro did not respond or the response was not received by the host. When this happens, the program prints "Failed to get ping" and the program ends.
+
 Part 2:
 Part 3:

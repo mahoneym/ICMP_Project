@@ -34,13 +34,7 @@ class Pinger(object):
         max_count = (len(source_string)/2)*2
         count = 0
         while count < max_count:
-
-            # To make this program run with Python 2.7.x:
-            # val = ord(source_string[count + 1])*256 + ord(source_string[count])
-            # ### uncomment the above line, and comment out the below line.
             val = source_string[count + 1]*256 + source_string[count]
-            # In Python 3, indexing a bytes object returns an integer.
-            # Hence, ord() is redundant.
 
             sum = sum + val
             sum = sum & 0xffffffff
@@ -64,9 +58,9 @@ class Pinger(object):
         """
         time_remaining = timeout
         while True:
-            start_time = time.time()
+            start_time = time.time()            # get the time of starrting to listen
             readable = select.select([sock], [], [], time_remaining)
-            time_spent = (time.time() - start_time)
+            time_spent = (time.time() - start_time)         # calculates how much time has passed
             if readable == 0: #Timeout occurs if readable is 0, hopefully remember what time out is now
                 return                                           # get out of here
 
@@ -86,7 +80,7 @@ class Pinger(object):
                 return time_received - time_sent                                            # returns how long it took for response to arrive
 
             time_remaining = time_remaining - time_spent                                    # resets the time remaining after this loop
-            if time_remaining <= 0:                                                         # if there is no time remaining
+            if time_remaining <= 0:                                                         # if a timeout occurred
                 return                                                                      # get out of here
 
 
@@ -97,13 +91,13 @@ class Pinger(object):
         """
         target_addr  =  socket.gethostbyname(self.target_host)
 
-        my_checksum = do_checksum()     #Fill in
+        my_checksum = 0     #Fill in
 
         # Create a dummy heder with a 0 checksum.
         header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
         bytes_In_double = struct.calcsize("d")                                              # get the size of the struct
         data = (192 - bytes_In_double) * "Q"                                                # fill the remaining packet space with Q's
-        data = struct.pack("d", time.time()) + bytes(data.encode('#Fill in'))
+        data = struct.pack("d", time.time()) + bytes(data.encode('utf-8'))
 
         # Get the checksum on the data and the dummy header.
         my_checksum = self.do_checksum(header + data)
@@ -111,7 +105,7 @@ class Pinger(object):
 
         packet = header + data              # add the data from above to the header to create a complete packet
         #send the packet to the target address
-        sock.sendto(#Fill in, (target_addr, 1))
+        sock.sendto(packet, (target_addr, 1))
 
 
     def ping_once(self):
@@ -121,12 +115,11 @@ class Pinger(object):
         icmp = socket.getprotobyname("icmp")
         try:
         #add the ipv4 socket (same as we did in our first project, SOCK_RAW(to bypass some of the TCP/IP handling by your OS) and the ICMP packet
-            #sock = socket.socket(#Fill in, socket.SOCK_RAW, icmp)
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
         except socket.error as e:
             if e.errno == 1:
                 print("Permissions error: The program must be run as admin")   # If not run by admin, operation is not permitted
-                e.msg +=  "" #Fill in before
+                e.msg +=  "Not run as admin" #Fill in before
                 raise socket.error(e.msg)
         except Exception as e:
             print ("Exception: %s" % e)                     #print the errror messege
@@ -161,9 +154,10 @@ class Pinger(object):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Python ping')
-    parser.add_argument('--target-host', action="store", dest="target_host", required=True)
-    given_args = parser.parse_args()
-    target_host = given_args.target_host
+    #parser = argparse.ArgumentParser(description='Python ping')
+    #parser.add_argument('--target-host', action="store", dest="target_host", required=True)
+    #given_args = parser.parse_args()
+    #target_host = given_args.target_host
+    target_host = 'www.google.com'
     pinger = Pinger(target_host=target_host)
     pinger.ping()
