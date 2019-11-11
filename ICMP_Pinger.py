@@ -6,7 +6,7 @@ import select
 import time
 
 
-ICMP_ECHO_REQUEST = 8       # Fill in the type of ECHO request here (Platform specific)
+ICMP_ECHO_REQUEST = 8       # type of ECHO request here
 DEFAULT_TIMEOUT = 2         # set the timeout for the pinger
 DEFAULT_COUNT = 4           # the number of pings to send
 
@@ -29,27 +29,29 @@ class Pinger(object):
 
 
     def do_checksum(self, source_string):
-        """  Verify the packet integrity by calculating the checksum just like we did in class """
-        sum = 0
-        max_count = (len(source_string)/2)*2
-        count = 0
-        while count < max_count:
+        """
+        Verify the packet integrity by calculating the checksum just like we did in class
+        """
+        sum = 0                                                             # initialize sum to 0
+        max_count = (len(source_string)/2)*2                                # make the max_count equal to the length of string
+        count = 0                                                           # initialize count to 0
+        while count < max_count:                                            # as long as count is less than max_count
             val = source_string[count + 1]*256 + source_string[count]
 
-            sum = sum + val
-            sum = sum & 0xffffffff
-            count = count + 2
+            sum = sum + val                                                 # add val to the new sum
+            sum = sum & 0xffffffff                                          # AND the sum with the unsigned integer
+            count = count + 2                                               # increment the count by 2
 
         if max_count<len(source_string):
             sum = sum + ord(source_string[len(source_string) - 1])
             sum = sum & 0xffffffff
 
-        sum = (sum >> 16)  +  (sum & 0xffff)
-        sum = sum + (sum >> 16)
-        answer = ~sum
-        answer = answer & 0xffff
-        answer = answer >> 8 | (answer << 8 & 0xff00)
-        return answer
+        sum = (sum >> 16)  +  (sum & 0xffff)                                # adds sum shifted to the right 16 places and sum bitwise and 0xffff
+        sum = sum + (sum >> 16)                                             # adds sum to sum shifted right 16 bits
+        answer = ~sum                                                       # answer equals the inverted bits of sum
+        answer = answer & 0xffff                                            # sets answers equal to answer bitwise anded with 0xffff
+        answer = answer >> 8 | (answer << 8 & 0xff00)                       # answer shifted right 8 bits ored with answer shifted left 8 anded with 0xff00
+        return answer                                                       # return the answer
 
     def receive_pong(self, sock, ID, timeout):
         """
@@ -61,7 +63,7 @@ class Pinger(object):
             start_time = time.time()                                        # get the time of starrting to listen
             readable = select.select([sock], [], [], time_remaining)
             time_spent = (time.time() - start_time)                         # calculates how much time has passed
-            if readable == 0:                     #Timeout occurs if readable is 0, hopefully remember what time out is now
+            if readable == 0:                                               # if readable is 0, timeout has occurred
                 return                                                      # get out of here cause we timed out
 
             time_received = time.time()
@@ -105,7 +107,6 @@ class Pinger(object):
 
         # add the data from above to the header to create a complete packet
         packet = header + data
-        #send the packet to the target address
         sock.sendto(packet, (target_addr, 1))                                               # send the packet to the socket
 
 
@@ -120,8 +121,8 @@ class Pinger(object):
             # and the ICMP packet
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
         except socket.error as e:                                                       # catch an error thrown by the socket
-            if e.errno == 1:
-                print("Permissions error: The program must be run as admin")            # If not run by admin/sudo, operation is not permitted
+            if e.errno == 1:                                                            # if there is an operations not permitted error
+                print("Permissions error: The program must be run as admin")            # print operation is not permitted
                 e.msg +=  "Not run as admin"                                            # Add 'Not run as admin' to the exception message
                 raise socket.error(e.msg)                                               # throw the exception
         except Exception as e:                                                          # catch any other exceptions
@@ -157,9 +158,9 @@ class Pinger(object):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Python ping')                         # create a parser to add arguments
+    parser = argparse.ArgumentParser(description='Python ping')                                     # create a parser to add arguments
     parser.add_argument('--target-host', action="store", dest="target_host", required=True)         # adds the host argument to the command
-    given_args = parser.parse_args()                                                    # parses the arguments
-    target_host = given_args.target_host                                                # puts the argument into target_host
-    pinger = Pinger(target_host=target_host)                                            # create a pinger with the given target_host
-    pinger.ping()                                                                       # ping the target_host
+    given_args = parser.parse_args()                                                                # parses the arguments
+    target_host = given_args.target_host                                                            # puts the argument into target_host
+    pinger = Pinger(target_host=target_host)                                                        # create a pinger with the given target_host
+    pinger.ping()                                                                                   # ping the target_host
