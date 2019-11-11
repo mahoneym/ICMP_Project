@@ -1,11 +1,23 @@
 Maggie Mahoney
 				ICMP Project
 Part 1:
-	1. Explain what the result is when you run the Python code.
+1. Explain what the result is when you run the Python code.
+
 When the python code is run on Xavier's network, the terminal prints 'Xavier CS web server is up!", and the program ends. 
 
-	2. Try to figure out what the code does and explain it here.
-The code is using python's shlex library to parse the ping command. Then, it uses the python subprocess library to run the ping command and check its return code. If the command is successful, the program will print that the cerebro server is up. Otherwise, if the return code is not 0, a CalledProcessError is thrown, which in this program means that cerebro did not respond or the response was not received by the host. When this happens, the program prints "Failed to get ping" and the program ends.
+2. Try to figure out what the code does and explain it here.
+
+The code is using python's shlex library to parse the ping command. Then, it uses the python subprocess library to run the ping command and check its return code. If the command is successful, the program will print that the CS web server is up. Otherwise, if the return code is not 0, a CalledProcessError is thrown, which in this program means that CS web server did not respond or the response was not received by the host. When this happens, the program prints "Failed to get ping" and the program ends.
 
 Part 2:
 Part 3:
+1. Examine one of the ICMP request packets sent by your program. What are the ICMP type and code numbers? Does this match with the packet you created in the program? Explain your answer. 
+
+The type in the ICMP request packets is 8, and the code is 0. The type and code are just as specified in the program when the header is returned from struct.pack within send_ping(). 
+ 2.Examine the corresponding ICMP reply. What are the ICMP type and code numbers? Is there any warning? If yes, explain what is going on.
+
+The ICMP type is 0, the code is 0. There are not any warnings in the packet.
+
+3. Examine the ICMP packet data in your packet capture. Is this different from the dummy ICMP data we created on the Python program? Explain your answer.
+ The packet's data is the same data as was written in the program. The data is filled with Q's just like in the program. 
+
