@@ -13,10 +13,9 @@ DEFAULT_COUNT = 4           # the number of pings to send
 
 class Pinger(object):
     """
-    The Pinger class defines an object that will send and receive ICMP echo requests and
-    replies to itself or other hosts. The constructor takes a target_host, the number of
-    pings to send (defaults to 4 if no input), and the amount of time for a timeout
-    (defaults to 2 if no input).
+    The Pinger class defines an object that will send and receive ICMP echo requests.
+    The constructor takes a target_host, the number of pings to send (defaults to 4
+    if no input), and the amount of time for a timeout (defaults to 2 if no input).
     """
 
     def __init__(self, target_host, count=DEFAULT_COUNT, timeout=DEFAULT_TIMEOUT):
@@ -66,9 +65,9 @@ class Pinger(object):
             if readable == 0:                                               # if readable is 0, timeout has occurred
                 return                                                      # get out of here cause we timed out
 
-            time_received = time.time()
-            recv_packet, addr = sock.recvfrom(1024)
-            icmp_header = recv_packet[20:28]
+            time_received = time.time()                                     # save the time the packet was received
+            recv_packet, addr = sock.recvfrom(1024)                         # save the packet and the address
+            icmp_header = recv_packet[20:28]                                # get the icmp header from the packet
             # bbHHh (or the first parameter for unpack) is the format of what is being returned by unpack
             # b = signed char or integer in python
             # H = unassigned short or integer in python
