@@ -42,9 +42,9 @@ class Pinger(object):
             sum = sum & 0xffffffff                                          # AND the sum with the unsigned integer
             count = count + 2                                               # increment the count by 2
 
-        if max_count<len(source_string):
-            sum = sum + ord(source_string[len(source_string) - 1])
-            sum = sum & 0xffffffff
+        if max_count<len(source_string):                                    # if count is less than the length of the source string
+            sum = sum + ord(source_string[len(source_string) - 1])          # set sum equal to the sum plus the unicode of length - 1
+            sum = sum & 0xffffffff                                          # and the sum with the max unsigned int
 
         sum = (sum >> 16)  +  (sum & 0xffff)                                # adds sum shifted to the right 16 places and sum bitwise and 0xffff
         sum = sum + (sum >> 16)                                             # adds sum to sum shifted right 16 bits
@@ -69,7 +69,7 @@ class Pinger(object):
             time_received = time.time()
             recv_packet, addr = sock.recvfrom(1024)
             icmp_header = recv_packet[20:28]
-            # bbHHh (or the first parameter for unpack) is the format of what is being returned
+            # bbHHh (or the first parameter for unpack) is the format of what is being returned by unpack
             # b = signed char or integer in python
             # H = unassigned short or integer in python
             # h = short or integer in python
@@ -91,35 +91,35 @@ class Pinger(object):
         We have to create a packet and send it to the destination host,
         we are creating a dummy ICMP packet and attaching it to the IP header.
         """
-        target_addr  =  socket.gethostbyname(self.target_host)                              # get the host name's IPv4 address
+        target_addr  =  socket.gethostbyname(self.target_host)                         # get the host name's IPv4 address
 
-        my_checksum = 0                                                                     # initialize checksum to zero
+        my_checksum = 0                                                                # initialize checksum to zero
 
         # Create a dummy heder with a 0 checksum.
         header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
-        bytes_In_double = struct.calcsize("d")                                              # get the size of the struct
-        data = (192 - bytes_In_double) * "Q"                                                # fill the remaining packet space with Q's
+        bytes_In_double = struct.calcsize("d")                                         # get the size of the struct
+        data = (192 - bytes_In_double) * "Q"                                           # fill the remaining packet space with Q's
         data = struct.pack("d", time.time()) + bytes(data.encode('utf-8'))
 
         # Get the checksum on the data and the dummy header.
-        my_checksum = self.do_checksum(header + data)
-        header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), ID, 1)
+        my_checksum = self.do_checksum(header + data)                                               # compute the checksum of the header and data
+        header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), ID, 1)       # set header to the packet as a byte object
 
         # add the data from above to the header to create a complete packet
-        packet = header + data
-        sock.sendto(packet, (target_addr, 1))                                               # send the packet to the socket
+        packet = header + data                                                         # put the header and data into a packet
+        sock.sendto(packet, (target_addr, 1))                                          # send the packet to the socket
 
 
     def ping_once(self):
         """
         Returns the delay (in seconds) or none on timeout.
         """
-        icmp = socket.getprotobyname("icmp")
+        icmp = socket.getprotobyname("icmp")                                           # returns the constant for the ICMP protocol from the socket
         try:
             # add the ipv4 socket (same as we did in our first project,
             # SOCK_RAW(to bypass some of the TCP/IP handling by your OS)
             # and the ICMP packet
-            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)                 # create a new socket for icmp
         except socket.error as e:                                                       # catch an error thrown by the socket
             if e.errno == 1:                                                            # if there is an operations not permitted error
                 print("Permissions error: The program must be run as admin")            # print operation is not permitted
@@ -128,7 +128,7 @@ class Pinger(object):
         except Exception as e:                                                          # catch any other exceptions
             print ("Exception: %s" % e)                                                 # print the exception messege
 
-        my_ID = os.getpid() & 0xFFFF
+        my_ID = os.getpid() & 0xFFFF                                                    # get the process id and bitwise AND it with 0xFFFF
 
         # Call the definition from send_ping above and send to the socket you created above
         self.send_ping(sock , my_ID)                                                    # send the ping
