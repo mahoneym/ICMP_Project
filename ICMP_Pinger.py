@@ -23,9 +23,9 @@ class Pinger(object):
         """
         The constructor for the pinger class
         """
-        self.target_host = target_host      # the host's address
-        self.count = count                  # how many ICMP packets to send
-        self.timeout = timeout              # assigns how long the pinger will wait for a response
+        self.target_host = target_host                                      # the host's address
+        self.count = count                                                  # how many ICMP packets to send
+        self.timeout = timeout                                              # assigns how long the pinger will wait for a response
 
 
     def do_checksum(self, source_string):
